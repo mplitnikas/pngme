@@ -1,4 +1,5 @@
 use std::convert::{TryFrom, TryInto};
+use std::fmt::Display;
 use std::str::FromStr;
 
 #[derive(PartialEq, Debug, Eq)]
@@ -33,6 +34,12 @@ impl ChunkType {
     }
     fn is_valid(&self) -> bool {
         self.is_reserved_bit_valid()
+    }
+}
+impl Display for ChunkType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let string_rep = std::str::from_utf8(&self.bytes).unwrap();
+        write!(f, "{}", string_rep)
     }
 }
 impl TryFrom<[u8; 4]> for ChunkType {
@@ -131,19 +138,19 @@ mod tests {
         println!("CHUNK {:?}", chunk);
         assert!(chunk.is_err());
     }
-    //
-    // #[test]
-    // pub fn test_chunk_type_string() {
-    //     let chunk = ChunkType::from_str("RuSt").unwrap();
-    //     assert_eq!(&chunk.to_string(), "RuSt");
-    // }
-    //
-    // #[test]
-    // pub fn test_chunk_type_trait_impls() {
-    //     let chunk_type_1: ChunkType = TryFrom::try_from([82, 117, 83, 116]).unwrap();
-    //     let chunk_type_2: ChunkType = FromStr::from_str("RuSt").unwrap();
-    //     let _chunk_string = format!("{}", chunk_type_1);
-    //     let _are_chunks_equal = chunk_type_1 == chunk_type_2;
-    // }
+
+    #[test]
+    pub fn test_chunk_type_string() {
+        let chunk = ChunkType::from_str("RuSt").unwrap();
+        assert_eq!(&chunk.to_string(), "RuSt");
+    }
+
+    #[test]
+    pub fn test_chunk_type_trait_impls() {
+        let chunk_type_1: ChunkType = TryFrom::try_from([82, 117, 83, 116]).unwrap();
+        let chunk_type_2: ChunkType = FromStr::from_str("RuSt").unwrap();
+        let _chunk_string = format!("{}", chunk_type_1);
+        let _are_chunks_equal = chunk_type_1 == chunk_type_2;
+    }
 }
 
