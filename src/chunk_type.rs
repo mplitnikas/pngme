@@ -1,20 +1,24 @@
+use crate::{Error, Result};
 use std::convert::{TryFrom, TryInto};
 use std::fmt::Display;
 use std::str::FromStr;
 
 #[derive(PartialEq, Debug, Eq)]
-struct ChunkType {
+pub struct ChunkType {
     bytes: [u8; 4],
 }
 impl ChunkType {
-    fn try_new(bytes: [u8; 4]) -> Result<Self, &'static str> {
+    fn try_new(bytes: [u8; 4]) -> Result<Self> {
         let valid_ascii = bytes
             .iter()
             .map(|&x| x as char)
             .all(|x| (x >= 'a' && x <= 'z') || (x >= 'A' && x <= 'Z'));
         match valid_ascii {
             true => Ok(ChunkType { bytes }),
-            false => Err("invalid chunk"),
+            false => Err(Box::new(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "something went wrong",
+            ))),
         }
     }
     fn bytes(&self) -> [u8; 4] {
@@ -43,14 +47,14 @@ impl Display for ChunkType {
     }
 }
 impl TryFrom<[u8; 4]> for ChunkType {
-    type Error = &'static str;
-    fn try_from(value: [u8; 4]) -> Result<Self, Self::Error> {
+    type Error = Error;
+    fn try_from(value: [u8; 4]) -> Result<Self> {
         ChunkType::try_new(value)
     }
 }
 impl FromStr for ChunkType {
-    type Err = &'static str;
-    fn from_str(value: &str) -> Result<Self, Self::Err> {
+    type Err = Error;
+    fn from_str(value: &str) -> Result<Self> {
         let bytes: [u8; 4] = value.as_bytes().try_into().map_err(|_| "invalid string")?;
         ChunkType::try_new(bytes)
     }
