@@ -1,5 +1,6 @@
 use crate::chunk_type::ChunkType;
 use crate::{Error, Result};
+use std::fmt::Display;
 
 struct Chunk {
     length: u32,
@@ -30,6 +31,9 @@ impl TryFrom<&[u8]> for Chunk {
         //  invalid chunktype
         //  bad crc?
     }
+}
+impl Display for Chunk {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {}
 }
 
 #[cfg(test)]
