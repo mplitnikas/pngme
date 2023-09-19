@@ -1,7 +1,7 @@
 use crate::chunk_type::ChunkType;
 use crate::{Error, Result};
+use crc::{Algorithm, Crc, CRC_32_CKSUM};
 use std::fmt::Display;
-use std::str::FromStr;
 
 struct Chunk {
     length: u32,
@@ -10,7 +10,16 @@ struct Chunk {
     crc: u32,
 }
 impl Chunk {
-    // fn new(chunk_type: ChunkType, data: Vec<u8>) -> Chunk {}
+    fn new(chunk_type: ChunkType, chunk_data: Vec<u8>) -> Chunk {
+        let length = chunk_data.len() as u32;
+        let crc = crc_checksum(&chunk_type, &chunk_data);
+        Chunk {
+            length,
+            chunk_type,
+            chunk_data,
+            crc,
+        }
+    }
     fn length(&self) -> u32 {
         self.length
     }
@@ -50,11 +59,13 @@ impl TryFrom<&[u8]> for Chunk {
 }
 impl Display for Chunk {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let chunk_data: String = String::from_utf8_lossy(&self.chunk_data).to_string();
         write!(
             f,
             "length: {}\nchunk_type: {}\nchunk_data: {}\ncrc: {}",
-            self.length, self.chunk_type, chunk_data, self.crc
+            self.length,
+            self.chunk_type,
+            self.data_as_string().unwrap(),
+            self.crc
         )
     }
 }
@@ -66,9 +77,22 @@ fn to_u32(bytes: [u8; 4]) -> u32 {
         | (bytes[3] as u32)
 }
 
+fn crc_checksum(chunk_type: &ChunkType, data: &Vec<u8>) -> u32 {
+    let algo = &Algorithm {
+        init: 0x11111111,
+        ..CRC_32_CKSUM
+    };
+    let crc = Crc::<u32>::new(algo);
+    let mut digest = crc.digest();
+    digest.update(&chunk_type.bytes());
+    digest.update(&data);
+    digest.finalize()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::str::FromStr;
 
     fn testing_chunk() -> Chunk {
         let data_length: u32 = 42;
@@ -88,16 +112,16 @@ mod tests {
         Chunk::try_from(chunk_data.as_ref()).unwrap()
     }
 
-    // #[test]
-    // fn test_new_chunk() {
-    //     let chunk_type = ChunkType::from_str("RuSt").unwrap();
-    //     let data = "This is where your secret message will be!"
-    //         .as_bytes()
-    //         .to_vec();
-    //     let chunk = Chunk::new(chunk_type, data);
-    //     assert_eq!(chunk.length(), 42);
-    //     assert_eq!(chunk.crc(), 2882656334);
-    // }
+    #[test]
+    fn test_new_chunk() {
+        let chunk_type = ChunkType::from_str("RuSt").unwrap();
+        let data = "This is where your secret message will be!"
+            .as_bytes()
+            .to_vec();
+        let chunk = Chunk::new(chunk_type, data);
+        assert_eq!(chunk.length(), 42);
+        assert_eq!(chunk.crc(), 2882656334);
+    }
 
     #[test]
     fn test_chunk_length() {

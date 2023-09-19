@@ -21,22 +21,22 @@ impl ChunkType {
             ))),
         }
     }
-    fn bytes(&self) -> [u8; 4] {
+    pub fn bytes(&self) -> [u8; 4] {
         self.bytes
     }
-    fn is_critical(&self) -> bool {
+    pub fn is_critical(&self) -> bool {
         ((self.bytes[0] >> 5) & 1) == 0
     }
-    fn is_public(&self) -> bool {
+    pub fn is_public(&self) -> bool {
         ((self.bytes[1] >> 5) & 1) == 0
     }
-    fn is_reserved_bit_valid(&self) -> bool {
+    pub fn is_reserved_bit_valid(&self) -> bool {
         ((self.bytes[2] >> 5) & 1) == 0
     }
-    fn is_safe_to_copy(&self) -> bool {
+    pub fn is_safe_to_copy(&self) -> bool {
         ((self.bytes[3] >> 5) & 1) == 1
     }
-    fn is_valid(&self) -> bool {
+    pub fn is_valid(&self) -> bool {
         self.is_reserved_bit_valid()
     }
 }
@@ -157,4 +157,3 @@ mod tests {
         let _are_chunks_equal = chunk_type_1 == chunk_type_2;
     }
 }
-
