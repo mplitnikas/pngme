@@ -11,9 +11,13 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 fn main() -> Result<()> {
     let args = Args::parse();
+    // println!("{:?}", args);
 
-    for _ in 0..args.count {
-        println!("Hello {}!", args.name)
+    match args {
+        Args::Encode(encode_args) => println!("encode with {:?}", encode_args),
+        Args::Decode(decode_args) => println!("decode with {:?}", decode_args),
+        Args::Remove(remove_args) => println!("remove with {:?}", remove_args),
+        Args::Print(print_args) => println!("print with {:?}", print_args),
     }
     Ok(())
 }

@@ -2,12 +2,29 @@ use clap::Parser;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
-pub struct Args {
-    /// Name of the person to greet
-    #[arg(short, long)]
-    pub name: String,
-
-    /// Number of times to greet
-    #[arg(short, long, default_value_t = 1)]
-    pub count: u8,
+pub enum Args {
+    Encode(EncodeArgs),
+    Decode(DecodeArgs),
+    Remove(RemoveArgs),
+    Print(PrintArgs),
 }
+
+#[derive(Parser, Debug)]
+pub struct EncodeArgs {
+    pub path: String,
+
+    pub chunk_name: String,
+
+    pub message: String,
+
+    pub output_file: Option<String>,
+}
+
+#[derive(Parser, Debug)]
+pub struct DecodeArgs {}
+
+#[derive(Parser, Debug)]
+pub struct RemoveArgs {}
+
+#[derive(Parser, Debug)]
+pub struct PrintArgs {}
