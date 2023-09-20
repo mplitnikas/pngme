@@ -17,7 +17,7 @@ impl ChunkType {
             true => Ok(ChunkType { bytes }),
             false => Err(Box::new(std::io::Error::new(
                 std::io::ErrorKind::Other,
-                "something went wrong",
+                "invalid ascii",
             ))),
         }
     }
@@ -139,7 +139,6 @@ mod tests {
         assert!(!chunk.is_valid());
 
         let chunk = ChunkType::from_str("Ru1t");
-        println!("CHUNK {:?}", chunk);
         assert!(chunk.is_err());
     }
 
