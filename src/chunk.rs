@@ -3,6 +3,7 @@ use crate::{Error, Result};
 use crc::{Algorithm, Crc, CRC_32_CKSUM};
 use std::fmt::Display;
 
+#[derive(Debug)]
 pub struct Chunk {
     length: u32,
     chunk_type: ChunkType,
@@ -36,7 +37,14 @@ impl Chunk {
         Ok(String::from_utf8(self.chunk_data.clone())?)
     }
     pub fn as_bytes(&self) -> Vec<u8> {
-        self.chunk_data.clone()
+        self.length
+            .to_be_bytes()
+            .iter()
+            .chain(&self.chunk_type.bytes())
+            .chain(&self.chunk_data)
+            .chain(&self.crc.to_be_bytes())
+            .cloned()
+            .collect()
     }
 }
 impl TryFrom<&[u8]> for Chunk {
@@ -80,7 +88,7 @@ impl Display for Chunk {
     }
 }
 
-fn to_u32(bytes: [u8; 4]) -> u32 {
+pub fn to_u32(bytes: [u8; 4]) -> u32 {
     ((bytes[0] as u32) << 24)
         | ((bytes[1] as u32) << 16)
         | ((bytes[2] as u32) << 8)

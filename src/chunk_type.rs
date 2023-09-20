@@ -17,7 +17,7 @@ impl ChunkType {
             true => Ok(ChunkType { bytes }),
             false => Err(Box::new(std::io::Error::new(
                 std::io::ErrorKind::Other,
-                "invalid ascii",
+                format!("invalid ascii: {}", String::from_utf8_lossy(&bytes)),
             ))),
         }
     }
