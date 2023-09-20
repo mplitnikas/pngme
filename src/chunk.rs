@@ -3,7 +3,7 @@ use crate::{Error, Result};
 use crc::{Algorithm, Crc, CRC_32_CKSUM};
 use std::fmt::Display;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Chunk {
     length: u32,
     chunk_type: ChunkType,

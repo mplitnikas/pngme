@@ -19,14 +19,41 @@ impl Png {
     fn append_chunk(&mut self, chunk: Chunk) {
         self.chunks.push(chunk);
     }
-    // fn remove_chunk(&mut self, chunk_type: &str) -> Result<Chunk> {}
+    fn remove_chunk(&mut self, chunk_type: &str) -> Result<Chunk> {
+        let pos = self
+            .chunks
+            .iter()
+            .position(|chunk| chunk.chunk_type().bytes() == chunk_type.as_bytes());
+
+        if let Some(index) = pos {
+            let removed = self.chunks[index].clone();
+            self.chunks.remove(index);
+            Ok(removed)
+        } else {
+            Err(Box::new(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "chunk type not found",
+            )))
+        }
+    }
     fn header(&self) -> &[u8; 8] {
         &self.header
     }
     fn chunks(&self) -> &[Chunk] {
         &self.chunks
     }
-    // fn chunk_by_type(&self, chunk_type: &str) -> Option<&Chunk> {}
+    fn chunk_by_type(&self, chunk_type: &str) -> Option<&Chunk> {
+        let res: Vec<&Chunk> = self
+            .chunks
+            .iter()
+            .filter(|chunk| chunk.chunk_type().bytes() == chunk_type.as_bytes())
+            .collect();
+        match res.len() {
+            0 => None,
+            1 => Some(res[0]),
+            _ => panic!("duplicate chunk types found!"),
+        }
+    }
     fn as_bytes(&self) -> Vec<u8> {
         let mut data: Vec<u8> = vec![];
         data.extend(self.header.iter());
@@ -176,31 +203,31 @@ mod tests {
         assert_eq!(chunks.len(), 3);
     }
 
-    // #[test]
-    // fn test_chunk_by_type() {
-    //     let png = testing_png();
-    //     let chunk = png.chunk_by_type("FrSt").unwrap();
-    //     assert_eq!(&chunk.chunk_type().to_string(), "FrSt");
-    //     assert_eq!(&chunk.data_as_string().unwrap(), "I am the first chunk");
-    // }
-    //
-    // #[test]
-    // fn test_append_chunk() {
-    //     let mut png = testing_png();
-    //     png.append_chunk(chunk_from_strings("TeSt", "Message").unwrap());
-    //     let chunk = png.chunk_by_type("TeSt").unwrap();
-    //     assert_eq!(&chunk.chunk_type().to_string(), "TeSt");
-    //     assert_eq!(&chunk.data_as_string().unwrap(), "Message");
-    // }
-    //
-    // #[test]
-    // fn test_remove_chunk() {
-    //     let mut png = testing_png();
-    //     png.append_chunk(chunk_from_strings("TeSt", "Message").unwrap());
-    //     png.remove_chunk("TeSt").unwrap();
-    //     let chunk = png.chunk_by_type("TeSt");
-    //     assert!(chunk.is_none());
-    // }
+    #[test]
+    fn test_chunk_by_type() {
+        let png = testing_png();
+        let chunk = png.chunk_by_type("FrSt").unwrap();
+        assert_eq!(&chunk.chunk_type().to_string(), "FrSt");
+        assert_eq!(&chunk.data_as_string().unwrap(), "I am the first chunk");
+    }
+
+    #[test]
+    fn test_append_chunk() {
+        let mut png = testing_png();
+        png.append_chunk(chunk_from_strings("TeSt", "Message").unwrap());
+        let chunk = png.chunk_by_type("TeSt").unwrap();
+        assert_eq!(&chunk.chunk_type().to_string(), "TeSt");
+        assert_eq!(&chunk.data_as_string().unwrap(), "Message");
+    }
+
+    #[test]
+    fn test_remove_chunk() {
+        let mut png = testing_png();
+        png.append_chunk(chunk_from_strings("TeSt", "Message").unwrap());
+        png.remove_chunk("TeSt").unwrap();
+        let chunk = png.chunk_by_type("TeSt");
+        assert!(chunk.is_none());
+    }
 
     #[test]
     fn test_png_from_image_file() {
