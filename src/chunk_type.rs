@@ -8,7 +8,7 @@ pub struct ChunkType {
     bytes: [u8; 4],
 }
 impl ChunkType {
-    fn try_new(bytes: [u8; 4]) -> Result<Self> {
+    pub fn try_new(bytes: [u8; 4]) -> Result<Self> {
         let valid_ascii = bytes
             .iter()
             .map(|&x| x as char)

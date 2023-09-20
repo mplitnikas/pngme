@@ -3,14 +3,14 @@ use crate::{Error, Result};
 use crc::{Algorithm, Crc, CRC_32_CKSUM};
 use std::fmt::Display;
 
-struct Chunk {
+pub struct Chunk {
     length: u32,
     chunk_type: ChunkType,
     chunk_data: Vec<u8>,
     crc: u32,
 }
 impl Chunk {
-    fn new(chunk_type: ChunkType, chunk_data: Vec<u8>) -> Chunk {
+    pub fn new(chunk_type: ChunkType, chunk_data: Vec<u8>) -> Chunk {
         let length = chunk_data.len() as u32;
         let crc = crc_checksum(&chunk_type, &chunk_data);
         Chunk {
@@ -20,22 +20,24 @@ impl Chunk {
             crc,
         }
     }
-    fn length(&self) -> u32 {
+    pub fn length(&self) -> u32 {
         self.length
     }
-    fn chunk_type(&self) -> &ChunkType {
+    pub fn chunk_type(&self) -> &ChunkType {
         &self.chunk_type
     }
-    fn data(&self) -> &[u8] {
+    pub fn data(&self) -> &[u8] {
         &self.chunk_data
     }
-    fn crc(&self) -> u32 {
+    pub fn crc(&self) -> u32 {
         self.crc
     }
-    fn data_as_string(&self) -> Result<String> {
+    pub fn data_as_string(&self) -> Result<String> {
         Ok(String::from_utf8(self.chunk_data.clone())?)
     }
-    // fn as_bytes(&self) -> Vec<u8> {}
+    pub fn as_bytes(&self) -> Vec<u8> {
+        self.chunk_data.clone()
+    }
 }
 impl TryFrom<&[u8]> for Chunk {
     type Error = Error;
