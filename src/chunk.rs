@@ -42,15 +42,18 @@ impl Chunk {
 impl TryFrom<&[u8]> for Chunk {
     type Error = Error;
     fn try_from(value: &[u8]) -> Result<Self> {
-        let value_len = value.len();
+        let mut index = 0;
         let length: u32 = to_u32((&value[..4]).try_into()?);
+        index += 4;
 
-        let chunk_type_bytes: [u8; 4] = (&value[4..8]).try_into()?;
+        let chunk_type_bytes: [u8; 4] = (&value[index..index + 4]).try_into()?;
         let chunk_type: ChunkType = ChunkType::try_from(chunk_type_bytes)?;
+        index += 4;
 
-        let chunk_data: Vec<u8> = (&value[8..(value_len - 4)]).into();
+        let chunk_data: Vec<u8> = (&value[index..index + (length as usize)]).into();
+        index += length as usize;
 
-        let crc: u32 = to_u32((&value[(value_len - 4)..]).try_into()?);
+        let crc: u32 = to_u32((&value[index..index + 4]).try_into()?);
         if crc != crc_checksum(&chunk_type, &chunk_data) {
             return Err(Box::new(std::io::Error::new(
                 std::io::ErrorKind::Other,
