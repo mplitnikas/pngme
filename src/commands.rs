@@ -1,6 +1,6 @@
 use crate::args::*;
 use crate::png::{Chunk, ChunkType, Png};
-use crate::{Error, Result};
+use crate::Result;
 use std::fs;
 use std::path::Path;
 use std::str::FromStr;
@@ -11,12 +11,11 @@ pub fn encode(args: EncodeArgs) -> Result<()> {
         args.message.as_bytes().into(),
     );
     let mut png = from_file(&args.path)?;
-    let res = png.chunk_by_type(&args.chunk_type);
-    if let Some(_chunk) = res {
-        let removed = png.remove_chunk(&args.chunk_type)?;
-        println!("overwriting existing chunk: {}", removed);
-    }
+    let removed = png.remove_chunk("IEND");
     png.append_chunk(chunk.clone());
+    if let Ok(end_chunk) = removed {
+        png.append_chunk(end_chunk);
+    };
     to_file(&args.path, png)?;
     println!("added new chunk {}", chunk);
     Ok(())
