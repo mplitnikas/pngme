@@ -4,7 +4,7 @@ mod chunk_type;
 mod commands;
 mod png;
 use crate::args::Args;
-use crate::commands::{decode, print};
+use crate::commands::{decode, encode, print, remove};
 use clap::Parser;
 
 pub type Error = Box<dyn std::error::Error>;
@@ -16,7 +16,7 @@ fn main() -> Result<()> {
     match args {
         Args::Encode(encode_args) => println!("encode with {:?}", encode_args),
         Args::Decode(decode_args) => decode(decode_args)?,
-        Args::Remove(remove_args) => println!("remove with {:?}", remove_args),
+        Args::Remove(remove_args) => remove(remove_args)?,
         Args::Print(print_args) => print(print_args)?,
     }
     Ok(())
