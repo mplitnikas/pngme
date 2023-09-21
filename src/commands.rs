@@ -11,13 +11,13 @@ use std::path::Path;
 // pub fn remove(args: RemoveArgs) -> Result<()> {}
 
 pub fn print(args: PrintArgs) -> Result<()> {
-    let contents: &[u8] = &from_file(args.path)?;
-    let png = Png::try_from(contents)?;
+    let png = from_file(args.path)?;
     println!("{}", png);
     Ok(())
 }
 
-fn from_file<P: AsRef<Path>>(path: P) -> Result<Vec<u8>> {
-    let contents = fs::read(path)?;
-    Ok(contents)
+fn from_file<P: AsRef<Path>>(path: P) -> Result<Png> {
+    let contents: &[u8] = &fs::read(path)?;
+    let png = Png::try_from(contents)?;
+    Ok(png)
 }
