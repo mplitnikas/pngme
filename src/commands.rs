@@ -5,9 +5,17 @@ use std::fs;
 use std::path::Path;
 
 // pub fn encode(args: EncodeArgs) -> Result<()> {}
-//
-// pub fn decode(args: DecodeArgs) -> Result<()> {}
-//
+
+pub fn decode(args: DecodeArgs) -> Result<()> {
+    let png = from_file(args.path)?;
+    let res = png.chunk_by_type(&args.chunk_type);
+
+    if let Some(chunk) = res {
+        println!("{}", String::from_utf8_lossy(chunk.data()));
+    }
+    Ok(())
+}
+
 // pub fn remove(args: RemoveArgs) -> Result<()> {}
 
 pub fn print(args: PrintArgs) -> Result<()> {
