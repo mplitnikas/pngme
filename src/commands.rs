@@ -16,7 +16,11 @@ pub fn encode(args: EncodeArgs) -> Result<()> {
     if let Ok(end_chunk) = removed {
         png.append_chunk(end_chunk);
     };
-    to_file(&args.path, png)?;
+    if let Some(out_path) = &args.output_file {
+        to_file(out_path, png)?;
+    } else {
+        to_file(&args.path, png)?;
+    }
     println!("added new chunk {}", chunk);
     Ok(())
 }
