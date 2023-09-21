@@ -1,10 +1,10 @@
-use crate::chunk::Chunk;
-use crate::chunk_type::ChunkType;
+pub use crate::chunk::Chunk;
+pub use crate::chunk_type::ChunkType;
 use crate::{Error, Result};
 use std::fmt::Display;
 
 #[derive(Debug)]
-struct Png {
+pub struct Png {
     header: [u8; 8],
     chunks: Vec<Chunk>,
 }
