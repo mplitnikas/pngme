@@ -14,7 +14,7 @@ fn main() -> Result<()> {
     let args = Args::parse();
 
     match args {
-        Args::Encode(encode_args) => println!("encode with {:?}", encode_args),
+        Args::Encode(encode_args) => encode(encode_args)?,
         Args::Decode(decode_args) => decode(decode_args)?,
         Args::Remove(remove_args) => remove(remove_args)?,
         Args::Print(print_args) => print(print_args)?,

@@ -3,8 +3,24 @@ use crate::png::{Chunk, ChunkType, Png};
 use crate::{Error, Result};
 use std::fs;
 use std::path::Path;
+use std::str::FromStr;
 
-// pub fn encode(args: EncodeArgs) -> Result<()> {}
+pub fn encode(args: EncodeArgs) -> Result<()> {
+    let chunk = Chunk::new(
+        ChunkType::from_str(&args.chunk_type)?,
+        args.message.as_bytes().into(),
+    );
+    let mut png = from_file(&args.path)?;
+    let res = png.chunk_by_type(&args.chunk_type);
+    if let Some(_chunk) = res {
+        let removed = png.remove_chunk(&args.chunk_type)?;
+        println!("overwriting existing chunk: {}", removed);
+    }
+    png.append_chunk(chunk.clone());
+    to_file(&args.path, png)?;
+    println!("added new chunk {}", chunk);
+    Ok(())
+}
 
 pub fn decode(args: DecodeArgs) -> Result<()> {
     let png = from_file(args.path)?;
